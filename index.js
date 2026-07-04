@@ -21,3 +21,4 @@ app.use('/api', routeEmpleado);
 
 app.listen(PORT, () => {
   console.log(`Servidor SIGA (backend) corriendo en el puerto ${PORT}`);
+});
