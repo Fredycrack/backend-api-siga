@@ -1,0 +1,64 @@
+# Despliegue del sistema SIGA en contenedores:
+# servidor web Apache, interfaz de programacion y base de datos.
+services:
+
+  # ---------- Base de datos ----------
+  db:
+    image: mysql:8.0
+    container_name: siga-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: siga2026
+      MYSQL_DATABASE: siga_db
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - siga_datos:/var/lib/mysql
+    networks:
+      - siga-red
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psiga2026"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Politica de seguridad: la base de datos no publica puertos al
+    # exterior. Solo es accesible desde la red interna del despliegue.
+
+  # ---------- Interfaz de programacion ----------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: siga-api
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      DATABASE_URL: mysql://root:siga2026@db:3306/siga_db
+    ports:
+      - "3000:3000"
+    networks:
+      - siga-red
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ---------- Servidor web Apache ----------
+  web:
+    build:
+      context: ./apache
+      dockerfile: Dockerfile
+    container_name: siga-apache
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      - siga-red
+    depends_on:
+      - api
+
+# Red interna dedicada del despliegue
+networks:
+  siga-red:
+    driver: bridge
+
+volumes:
+  siga_datos:
