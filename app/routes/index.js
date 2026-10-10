@@ -5,6 +5,7 @@ import administrativo from './routes.administrativo.js';
 import labor from './routes.labor.js';
 import equipo from './routes.equipo.js';
 import inventario from './routes.inventario.js';
+import personal from './routes.personal.js';
 
 /**
  * Rutas de la API agrupadas por modulo del sistema.
@@ -15,5 +16,6 @@ router.use(empleado);        // Modulo 3: usuarios del sistema (RF03)
 router.use(administrativo);  // Modulo 3: clientes, contratos, servicios, respaldo
 router.use(labor);           // Modulo 1: servicios agricolas
 router.use(equipo);          // Modulo 2: servicios tecnologicos
+router.use(personal);        // Modulo 4: gestion de personal
 router.use(inventario);      // Modulo 5: inventario
 export default router;
