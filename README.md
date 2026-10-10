@@ -10,9 +10,9 @@ del documento de requisitos. La interfaz web esta en el repositorio
 | Modulo | Requerimientos | Funcionalidad |
 |---|---|---|
 | 1. Servicios agricolas | RF07 a RF12 | Programacion de labores, inicio y fin con GPS, evidencia fotografica, avance por contrato y sincronizacion sin conexion |
-| 2. Servicios tecnologicos | RF13 a RF17 | Recepcion de equipos con codigo de seguimiento, diagnostico, cotizacion, repuestos y consulta publica del estado |
+| 2. Servicios tecnologicos | RF13 a RF18 | Recepcion de equipos con codigo de seguimiento, diagnostico, cotizacion, repuestos, consulta publica del estado y trabajo sin conexion |
 | 3. Gestion administrativa | RF01 a RF06 | Clientes, contratos, usuarios y roles, cambio de contrasena, respaldo y solicitudes de los clientes |
-| 4. Gestion de personal | RF18 a RF22 | Asistencia con codigo QR, tareas y liquidacion de nomina con productividad |
+| 4. Gestion de personal | RF19 a RF22 | Asistencia con codigo QR, tareas y liquidacion de nomina con productividad |
 | 5. Inventario | RF23 a RF28 | Existencias, movimientos, alertas de stock minimo y ordenes de compra automaticas con aprobacion |
 | 6. Seguridad y salud en el trabajo | RF29 a RF32 | Capacitaciones, entrega de EPP, incidentes e indicadores de la Resolucion 0312 de 2019 |
 | 7. Facturacion | RF33 a RF36 | Facturas desde labores o manuales con IVA, PDF, envio por correo, pagos parciales y cartera |
@@ -41,7 +41,7 @@ backend-api-siga/
 ├── database/
 │   ├── schema.sql     23 tablas (compatible con la base de la version 1.0)
 │   └── seed.sql       datos de demostracion
-├── tests/api.test.js  47 pruebas de integracion (node:test)
+├── tests/api.test.js  48 pruebas de integracion (node:test)
 ├── app.js             aplicacion Express
 ├── index.js           punto de entrada: migra la base y abre el puerto
 ├── Dockerfile, docker-compose.yml, apache/   despliegue en contenedores
@@ -81,7 +81,7 @@ En un servidor publico defina siempre `DEMO_PASSWORD` antes del primer despliegu
 DB_HOST=127.0.0.1 DB_PORT=3306 DB_USER=root DB_PASSWORD=... npm test
 ```
 
-Las 47 pruebas recorren los ocho modulos: autenticacion y roles, validaciones de negocio
+Las 48 pruebas recorren los ocho modulos: autenticacion y roles, validaciones de negocio
 (cruces de horario, estados de las reparaciones, stock, IVA, pagos), sincronizacion sin conexion,
 exportaciones y el aislamiento de datos del portal de clientes.
 
