@@ -6,6 +6,7 @@ import labor from './routes.labor.js';
 import equipo from './routes.equipo.js';
 import inventario from './routes.inventario.js';
 import personal from './routes.personal.js';
+import sst from './routes.sst.js';
 
 /**
  * Rutas de la API agrupadas por modulo del sistema.
@@ -18,4 +19,5 @@ router.use(labor);           // Modulo 1: servicios agricolas
 router.use(equipo);          // Modulo 2: servicios tecnologicos
 router.use(personal);        // Modulo 4: gestion de personal
 router.use(inventario);      // Modulo 5: inventario
+router.use(sst);             // Modulo 6: seguridad y salud en el trabajo
 export default router;
