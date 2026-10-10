@@ -5,7 +5,7 @@
   "description": "API REST del Sistema Integrado de Gestion AGROSERVICES (SIGA): 8 modulos",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js",
+    "dev": "node --env-file-if-exists=.env index.js",
     "start": "node index.js",
     "test": "node --test --test-concurrency=1 tests/*.test.js"
   },
@@ -18,5 +18,8 @@
     "nodemailer": "^10.1.0",
     "pdfkit": "^0.20.2",
     "qrcode": "^1.5.4"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

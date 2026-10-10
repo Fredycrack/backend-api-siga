@@ -2,6 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pool from '../config/db.js';
+import { cifrar, validarPolitica } from '../utils/seguridad.js';
+
+const USUARIOS_DEMO = ['admin', 'supervisor', 'campo', 'tecnico', 'inventario', 'sst', 'gerente', 'campo2', 'campo3']
+  .map((u) => `${u}@agroservices.com`);
 
 /**
  * Migracion automatica: crea las tablas que falten (schema.sql) y, si la base
@@ -41,6 +45,14 @@ export const migrar = async ({ demo = true } = {}) => {
     const [[{ n }]] = await conexion.query('SELECT COUNT(*) AS n FROM cliente');
     if (demo && n === 0) {
       await ejecutarArchivo(conexion, 'seed.sql');
+      // En un servidor publico la clave de los usuarios de demostracion se
+      // define con DEMO_PASSWORD en lugar de usar la del script.
+      if (process.env.DEMO_PASSWORD) {
+        validarPolitica(process.env.DEMO_PASSWORD);
+        const hash = await cifrar(process.env.DEMO_PASSWORD);
+        await conexion.query(`UPDATE empleado SET password = ? WHERE email IN (${USUARIOS_DEMO.map(() => '?').join(',')})`, [hash, ...USUARIOS_DEMO]);
+        await conexion.query('UPDATE cliente SET password = ? WHERE password IS NOT NULL', [hash]);
+      }
       console.log('[SIGA] Datos de demostracion cargados');
     }
     console.log('[SIGA] Base de datos lista');
