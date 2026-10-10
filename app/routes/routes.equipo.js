@@ -10,6 +10,7 @@ router.get('/seguimiento/:codigo', c.seguimiento);
 
 router.use('/equipos', verificarToken);
 router.get('/equipos', permitir('Tecnico Electronico', 'Gerente'), c.listar);
+router.post('/equipos/sincronizar', tecnico, c.sincronizar);                 // RF18
 router.get('/equipos/:id', permitir('Tecnico Electronico', 'Gerente'), c.obtener);
 router.post('/equipos', tecnico, c.crear);                                    // RF13
 router.put('/equipos/:id', tecnico, c.actualizar);

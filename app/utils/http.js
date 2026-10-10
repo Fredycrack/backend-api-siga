@@ -45,3 +45,14 @@ export const fechaValida = (valor, campo) => {
   }
   return valor;
 };
+
+// Fecha y hora de una accion registrada sin conexion (RF12, RF18): se toma la
+// del dispositivo, se valida y se expresa en hora de Colombia (UTC-5)
+export const fechaAccion = (valor) => {
+  if (!valor) return null;
+  const f = new Date(valor);
+  if (Number.isNaN(f.getTime())) throw new HttpError(400, 'Fecha y hora de la accion no valida');
+  if (f.getTime() > Date.now() + 5 * 60 * 1000) throw new HttpError(400, 'La fecha de la accion no puede ser futura');
+  const local = new Date(f.getTime() - 5 * 3600 * 1000);
+  return local.toISOString().slice(0, 19).replace('T', ' ');
+};

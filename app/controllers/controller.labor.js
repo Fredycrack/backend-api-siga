@@ -1,7 +1,7 @@
 import pool from '../config/db.js';
 import * as Labor from '../models/labor.model.js';
 import { enTransaccion } from '../models/crud.js';
-import { asyncHandler, HttpError, requerir, limpiar, fechaValida } from '../utils/http.js';
+import { asyncHandler, HttpError, requerir, limpiar, fechaValida, fechaAccion } from '../utils/http.js';
 import { auditar } from '../utils/auditoria.js';
 
 /**
@@ -25,17 +25,6 @@ export const distanciaMetros = (lat1, lon1, lat2, lon2) => {
 };
 
 const coordenada = (v) => (v === undefined || v === null || v === '' ? null : Number(v));
-
-// Fecha y hora de la accion: la del dispositivo si se registro sin conexion
-const fechaAccion = (valor) => {
-  if (!valor) return null;
-  const f = new Date(valor);
-  if (Number.isNaN(f.getTime())) throw new HttpError(400, 'Fecha y hora de la accion no valida');
-  if (f.getTime() > Date.now() + 5 * 60 * 1000) throw new HttpError(400, 'La fecha de la accion no puede ser futura');
-  // Se expresa en hora de Colombia (UTC-5)
-  const local = new Date(f.getTime() - 5 * 3600 * 1000);
-  return local.toISOString().slice(0, 19).replace('T', ' ');
-};
 
 // Un trabajador de campo solo puede ver y operar sus propias labores
 const verificarPropietario = (req, labor) => {

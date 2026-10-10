@@ -302,6 +302,30 @@ describe('Modulo 2: servicios tecnologicos', () => {
     assert.equal(e.datos.repuestos.length, 1);
   });
 
+  test('RF18: sincroniza en orden el trabajo del tecnico hecho sin conexion', async () => {
+    const clientes = (await api('GET', '/clientes', { rol: 'tecnico' })).datos;
+    const nuevo = await api('POST', '/equipos', { rol: 'tecnico', cuerpo: { id_cliente: clientes[1].id_cliente, tipo_equipo: 'Bascula electronica', problema_reportado: 'No calibra' } });
+    const id = nuevo.datos.id;
+    const cable = (await api('GET', '/inventario', { rol: 'tecnico' })).datos.find((p) => p.categoria === 'Repuesto electronico' && p.cantidad_disponible > 5);
+    const t = Date.now();
+    const hace = (min) => new Date(t - min * 60000).toISOString();
+    const r = await api('POST', '/equipos/sincronizar', { rol: 'tecnico', cuerpo: { acciones: [
+      { id_local: 'c', tipo: 'estado', id_equipo: id, fecha_hora: hace(10), datos: { estado: 'En proceso' } },
+      { id_local: 'a', tipo: 'diagnostico', id_equipo: id, fecha_hora: hace(40), datos: { diagnostico: 'Celda de carga suelta', valor_cotizacion: 95000 } },
+      { id_local: 'd', tipo: 'repuesto', id_equipo: id, fecha_hora: hace(5), datos: { id_inventario: cable.id_inventario, cantidad: 1 } },
+      { id_local: 'b', tipo: 'aprobar', id_equipo: id, fecha_hora: hace(20), datos: {} },
+      { id_local: 'e', tipo: 'otra', id_equipo: id, fecha_hora: hace(1), datos: {} }
+    ] } });
+    assert.equal(r.estado, 200);
+    const porId = Object.fromEntries(r.datos.resultados.map((x) => [x.id_local, x]));
+    assert.ok(['a', 'b', 'c', 'd'].every((k) => porId[k].ok), JSON.stringify(r.datos));
+    assert.equal(porId.e.ok, false);
+    const e = (await api('GET', `/equipos/${id}`, { rol: 'tecnico' })).datos;
+    assert.equal(e.estado, 'En proceso');
+    assert.equal(e.repuestos.length, 1);
+    assert.equal((await api('POST', '/equipos/sincronizar', { rol: 'campo', cuerpo: { acciones: [] } })).estado, 403);
+  });
+
   test('RF17: consulta publica sin datos personales', async () => {
     const r = await api('GET', `/seguimiento/${codigo.toLowerCase()}`);
     assert.equal(r.estado, 200);
