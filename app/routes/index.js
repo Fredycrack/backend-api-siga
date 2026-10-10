@@ -8,6 +8,8 @@ import inventario from './routes.inventario.js';
 import personal from './routes.personal.js';
 import sst from './routes.sst.js';
 import factura from './routes.factura.js';
+import reportes from './routes.reportes.js';
+import portal from './routes.portal.js';
 
 /**
  * Rutas de la API agrupadas por modulo del sistema.
@@ -22,4 +24,6 @@ router.use(personal);        // Modulo 4: gestion de personal
 router.use(inventario);      // Modulo 5: inventario
 router.use(sst);             // Modulo 6: seguridad y salud en el trabajo
 router.use(factura);         // Modulo 7: facturacion
+router.use(reportes);        // Modulo 8: reportes y estadisticas
+router.use(portal);          // Portal de clientes
 export default router;
