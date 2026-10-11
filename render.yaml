@@ -1,0 +1,21 @@
+# Despliegue de la API de SIGA en Render (Blueprint).
+# La base de datos es TiDB Cloud Serverless: copie su cadena de conexion en DATABASE_URL.
+services:
+  - type: web
+    name: backend-api-siga
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false          # mysql://usuario:clave@host:4000/siga_db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SEED_DEMO
+        value: "true"
+      - key: DEMO_PASSWORD
+        sync: false          # clave de los usuarios de demostracion (8+ caracteres, mayuscula, minuscula y numero)

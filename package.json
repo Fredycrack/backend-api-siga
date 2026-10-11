@@ -1,16 +1,25 @@
 {
   "name": "backend-api-siga",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "API REST - Modulo de Empleados y Autenticacion del Sistema Integrado de Gestion AGROSERVICES (SIGA)",
+  "description": "API REST del Sistema Integrado de Gestion AGROSERVICES (SIGA): 8 modulos",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js",
-    "start": "node index.js"
+    "dev": "node --env-file-if-exists=.env index.js",
+    "start": "node index.js",
+    "test": "node --test --test-concurrency=1 tests/*.test.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "exceljs": "^4.4.0",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.3",
-    "mysql2": "^3.11.5"
+    "mysql2": "^3.11.5",
+    "nodemailer": "^10.1.0",
+    "pdfkit": "^0.20.2",
+    "qrcode": "^1.5.4"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
