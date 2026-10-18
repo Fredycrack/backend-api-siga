@@ -1,24 +1,22 @@
-import express from 'express';
-import routeEmpleado from './app/routes/routes.empleado.js';
-import routeAuth from './app/routes/routes.auth.js';
+import app from './app.js';
+import { config } from './app/config/env.js';
+import { migrar } from './app/db/migrate.js';
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+/**
+ * Punto de entrada de la API REST de SIGA.
+ * Antes de abrir el puerto crea las tablas que falten en la base de datos.
+ */
+const iniciar = async () => {
+  if (config.migrarAlIniciar) {
+    try {
+      await migrar({ demo: config.cargarDemo });
+    } catch (e) {
+      console.error('[SIGA] No fue posible preparar la base de datos:', e.message);
+    }
+  }
+  app.listen(config.puerto, () => {
+    console.log(`Servidor SIGA (backend) corriendo en el puerto ${config.puerto}`);
+  });
+};
 
-// Middleware para parsear JSON
-app.use(express.json());
-
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.json({ message: 'API SIGA - AGROSERVICES P&D SAS funcionando correctamente' });
-});
-
-// Rutas de autenticacion (login) - CU3.7 Gestionar Autenticacion
-app.use('/api', routeAuth);
-
-// Rutas del CRUD de empleados - CU3.3 Configurar Usuarios / RF03
-app.use('/api', routeEmpleado);
-
-app.listen(PORT, () => {
-  console.log(`Servidor SIGA (backend) corriendo en el puerto ${PORT}`);
-});
+iniciar();

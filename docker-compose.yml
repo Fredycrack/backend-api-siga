@@ -1,5 +1,9 @@
-# Despliegue del sistema SIGA en contenedores:
-# servidor web Apache, interfaz de programacion y base de datos.
+# Despliegue completo del sistema SIGA en contenedores:
+# base de datos MySQL, API REST, interfaz web (EJS) y servidor Apache.
+# Requiere clonar los dos repositorios uno al lado del otro:
+#   backend-api-siga/   (este repositorio)
+#   frontend-ejs-siga/  (interfaz web)
+# Uso: docker compose up -d --build   ->   http://localhost:8080
 services:
 
   # ---------- Base de datos ----------
@@ -8,22 +12,22 @@ services:
     container_name: siga-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: siga2026
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-siga2026}
       MYSQL_DATABASE: siga_db
     volumes:
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - siga_datos:/var/lib/mysql
     networks:
       - siga-red
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psiga2026"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD"]
       interval: 10s
       timeout: 5s
       retries: 10
     # Politica de seguridad: la base de datos no publica puertos al
     # exterior. Solo es accesible desde la red interna del despliegue.
+    # Las tablas y los datos de demostracion los crea la API al iniciar.
 
-  # ---------- Interfaz de programacion ----------
+  # ---------- Interfaz de programacion (API REST) ----------
   api:
     build:
       context: .
@@ -32,7 +36,10 @@ services:
     restart: unless-stopped
     environment:
       PORT: 3000
-      DATABASE_URL: mysql://root:siga2026@db:3306/siga_db
+      NODE_ENV: production
+      DATABASE_URL: mysql://root:${MYSQL_ROOT_PASSWORD:-siga2026}@db:3306/siga_db
+      JWT_SECRET: ${JWT_SECRET:-cambie-esta-clave-en-produccion}
+      SEED_DEMO: "true"
     ports:
       - "3000:3000"
     networks:
@@ -41,7 +48,25 @@ services:
       db:
         condition: service_healthy
 
-  # ---------- Servidor web Apache ----------
+  # ---------- Interfaz web (Express + EJS) ----------
+  frontend:
+    build:
+      context: ../frontend-ejs-siga/siga-frontend
+      dockerfile: Dockerfile
+    container_name: siga-frontend
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      NODE_ENV: production
+      API_URL: http://api:3000/api
+      SESSION_SECRET: ${SESSION_SECRET:-cambie-esta-clave-de-sesion}
+      COOKIE_SEGURA: "false"   # en local se usa http; en Render la cookie viaja por https
+    networks:
+      - siga-red
+    depends_on:
+      - api
+
+  # ---------- Servidor web Apache (punto de entrada) ----------
   web:
     build:
       context: ./apache
@@ -53,7 +78,7 @@ services:
     networks:
       - siga-red
     depends_on:
-      - api
+      - frontend
 
 # Red interna dedicada del despliegue
 networks:
